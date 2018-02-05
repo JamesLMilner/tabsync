@@ -1,24 +1,5 @@
 
 
-
-// We use localstorage but easily could use IndexDB!
-if (localStorage.getItem("counter") !== undefined && localStorage.getItem("counter") !== "NaN") {
-    var count = parseInt(localStorage.getItem("counter"));
-    setCounter(count)
-}
-
-document.getElementById("increment").addEventListener("click", function(event){
-    var count = parseInt(document.getElementById("counter").innerHTML) + 1;
-    setCounter(count, false)
-    stateToServiceWorker({property: "counter", state: count })
-});
-
-document.getElementById("decrement").addEventListener("click", function(event){
-    var count = parseInt(document.getElementById("counter").innerHTML) - 1;
-    setCounter(count, false)
-    stateToServiceWorker({property: "counter", state: count })
-})
-
 if ('serviceWorker' in navigator) {
     //tabSyncReady = new Promise(); 
     navigator.serviceWorker.register('service-worker.js')
@@ -41,10 +22,43 @@ if ('serviceWorker' in navigator) {
         });
 }
 
+initCounter();
+
+function initCounter() {
+
+    // We use localstorage but easily could use IndexDB!
+    var validStoredCounter = localStorage.getItem("counter") !== undefined && 
+                             localStorage.getItem("counter") !== "NaN"
+    
+    if (validStoredCounter) {
+        var count = parseInt(localStorage.getItem("counter"));
+        setCounter(count)
+    }
+
+    document.getElementById("increment").addEventListener("click", increment);
+    document.getElementById("decrement").addEventListener("click", decrement);
+
+}
+
+function decrement(event) {
+    var count = getCount() - 1;
+    setCounter(count, false)
+}
+
+function increment(event) {
+    var count = getCount() + 1;
+    setCounter(count, false)
+}
+
+function getCount() {
+    return parseInt(document.getElementById("counter").innerHTML);
+}
+
 function setCounter(count, fromOtherTab) {
     document.getElementById("counter").innerHTML = parseInt(count);
     if (!fromOtherTab) {
         localStorage.setItem("counter", count);
+        stateToServiceWorker({property: "counter", state: count });
     }
 }
 

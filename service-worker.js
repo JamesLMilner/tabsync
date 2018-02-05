@@ -14,9 +14,10 @@ self.addEventListener('fetch', event => {
 });
 
 self.addEventListener('message', function(event){
+    //console.log("Message recieved in service worker:", event);
     var data = JSON.parse(event.data);
-    //console.log("Message recieved in service worker:", data);
-    self.syncTabState(data)
+    var clientId = event.source.id
+    self.syncTabState(data, clientId);
 });
 
 
@@ -32,23 +33,29 @@ self.sendTabState = function(client, data){
             }
         };
 
-        console.log("Posting out data to client", client)
+        // console.log("Posting out data to client", client)
         client.postMessage(JSON.stringify(data), [channel.port2]);
 
     });
     
 }
 
-self.syncTabState = function(data){
-    //console.log("syncTabState called");
+self.syncTabState = function(data, clientId){
     clients.matchAll().then(clients => {
         clients.forEach(client => {
-            //console.log("client tab", client);
-            if (client.visibilityState === "hidden") {
+
+            // No need to update the tab that 
+            // sent the data
+            if (client.id !== clientId) {
                 self.sendTabState(client, data)
-                    .then(m => console.log("SW Received Message: "+m))
-                    .catch(e => console.log("Something went wrong", e));
+                    .then(function(message) { 
+                        console.log("Message was recieved "+ message )
+                    })
+                    .catch(function(error) {
+                            console.log("There was an error sending tab state", error)
+                    });
             }
+           
         })
     })
 }
