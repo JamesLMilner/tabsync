@@ -15,29 +15,14 @@ self.addEventListener('fetch', event => {
 
 self.addEventListener('message', function(event){
     //console.log("Message recieved in service worker:", event);
-    var data = JSON.parse(event.data);
+    var data = event.data;
     var clientId = event.source.id
     self.syncTabState(data, clientId);
 });
 
 
 self.sendTabState = function(client, data){
-    return new Promise(function(resolve, reject) {
-
-        var channel = new MessageChannel();
-        channel.port1.onmessage = function(event){
-            if(event.data.error){
-                reject(event.data.error);
-            } else{
-                resolve(event.data);
-            }
-        };
-
-        // console.log("Posting out data to client", client)
-        client.postMessage(JSON.stringify(data), [channel.port2]);
-
-    });
-    
+    client.postMessage(data);
 }
 
 self.syncTabState = function(data, clientId){
@@ -48,12 +33,6 @@ self.syncTabState = function(data, clientId){
             // sent the data
             if (client.id !== clientId) {
                 self.sendTabState(client, data)
-                    .then(function(message) { 
-                        console.log("Message was recieved "+ message )
-                    })
-                    .catch(function(error) {
-                            console.log("There was an error sending tab state", error)
-                    });
             }
            
         })

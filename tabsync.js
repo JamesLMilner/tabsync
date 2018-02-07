@@ -11,7 +11,7 @@ if ('serviceWorker' in navigator) {
             navigator.serviceWorker.addEventListener('message', function(event){
                 var data;
                 if (event.data) {
-                    data = JSON.parse(event.data);
+                    data = event.data;
                     if (data.property === "counter" && data.state !== undefined) {
                         setCounter(data.state, true);
                     }
@@ -58,13 +58,13 @@ function setCounter(count, fromOtherTab) {
     document.getElementById("counter").innerHTML = parseInt(count);
     if (!fromOtherTab) {
         localStorage.setItem("counter", count);
-        stateToServiceWorker({property: "counter", state: count });
+        stateToServiceWorker({property: "counter", state: count});
     }
 }
 
 function stateToServiceWorker(data){
     if (navigator.serviceWorker && navigator.serviceWorker.controller) {
         navigator.serviceWorker.controller
-            .postMessage(JSON.stringify(data));
+            .postMessage(data);
     }
 }
