@@ -28,13 +28,14 @@ function initCounter() {
 
     // We use localstorage but easily could use IndexDB!
     var validStoredCounter = localStorage.getItem("counter") !== undefined && 
+                             localStorage.getItem("counter") !== null &&
                              localStorage.getItem("counter") !== "NaN"
     
     if (validStoredCounter) {
         var count = parseInt(localStorage.getItem("counter"));
-        setCounter(count);
+        setCounter(count, false);
     } else {
-        setCounter(0);
+        setCounter(0, false);
     }
 
     document.getElementById("increment").addEventListener("click", increment);
@@ -53,7 +54,12 @@ function increment(event) {
 }
 
 function getCount() {
-    return parseInt(document.getElementById("counter").innerHTML);
+    var count = parseInt(document.getElementById("counter").innerHTML);
+    if (!isNaN(count)) {
+        return count;
+    } else {
+        return 0;
+    }
 }
 
 function setCounter(count, fromOtherTab) {
