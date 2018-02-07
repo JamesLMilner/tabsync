@@ -32,7 +32,9 @@ function initCounter() {
     
     if (validStoredCounter) {
         var count = parseInt(localStorage.getItem("counter"));
-        setCounter(count)
+        setCounter(count);
+    } else {
+        setCounter(0);
     }
 
     document.getElementById("increment").addEventListener("click", increment);
